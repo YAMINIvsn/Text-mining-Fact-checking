@@ -53,11 +53,8 @@ verdict:
 
 - TRUE: relevant evidence clearly confirms the claim as stated
 - FALSE: relevant evidence clearly contradicts the claim
-- PARTIALLY TRUE: some elements are accurate but the claim overstates, omits
-  key context, or is only true under specific conditions
-- MISLEADING: technically has some basis but creates a false impression
-- UNVERIFIABLE: no relevant sources were found, or they don't provide enough
-  information to judge
+- UNVERIFIABLE: no relevant sources, not enough information, or the evidence
+  is mixed / only partly supports the claim (overstated, missing context)
 
 CRITICAL RULES:
 
@@ -68,8 +65,8 @@ CRITICAL RULES:
 2. Only cite sources you judged relevant for that specific claim. Never cite
    an irrelevant source.
 
-3. Never invent a URL, title, or publisher — only use exactly what was
-   provided for that claim.
+3. Never invent a URL — in "cited_sources" give ONLY the exact url of each
+   relevant source provided for that claim (nothing else).
 
 4. If zero sources are relevant for a claim, that claim's verdict MUST be
    UNVERIFIABLE.
@@ -101,14 +98,7 @@ object MUST include "claim_index" set to the number from that claim's
     ],
     "summary": "...",
     "explanation": "...",
-    "cited_sources": [
-      {
-        "publisher": "...",
-        "url": "...",
-        "title": "...",
-        "relevant_text": "..."
-      }
-    ]
+    "cited_sources": [{"url": "..."}]
   }
 ]
 

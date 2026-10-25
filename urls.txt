@@ -1,0 +1,21 @@
+   https://www.youtube.com/watch?v=Og5xAdC8EUI
+   https://www.youtube.com/watch?v=bsAWFKZPntY
+   https://youtu.be/LqaDf2fuUH8
+   # Confirmed (TRUE baseline)
+https://www.youtube.com/watch?v=Og5xAdC8EUI
+# Myth videos (expect FALSE)
+https://www.youtube.com/watch?v=bsAWFKZPntY
+https://youtu.be/LqaDf2fuUH8
+# Unconfirmed ID, check it opens first
+https://www.youtube.com/watch?v=QqsLTNkzvaY
+# Paste the links below after searching YouTube for the titles
+
+https://youtu.be/ruM4Xxhx32U?si=n-A8MZJSP75qSG7O
+https://youtu.be/8NUxvJS-_0k?si=WnvuzTUqm0AIwkv0
+https://youtu.be/PSRJfaAYkW4?si=M3XZMxYwRxJ9mOiE
+https://youtu.be/rb7TVW77ZCs?si=xHRAgxZ58W-apXmg
+https://youtu.be/iNrUpBwU3q0?si=0S6IQbL2qVObkq9n
+https://youtu.be/yxonJTWhBJQ?si=YzA07fLYmLXxjbT5
+https://youtu.be/vHhn7z6BA0w?si=YaTPvdwT4_VTO-Dl
+https://youtu.be/kPLIS_6OUhs?si=_wpkpE6-l73cxea_
+https://youtu.be/rN557NHXnI0?si=lAPSO6RSpqCRlGdn

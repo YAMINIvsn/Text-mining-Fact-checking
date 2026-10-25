@@ -22,7 +22,6 @@ CONFLICT_CAP = 0.60
 MAX_CONFIDENCE = 0.95              # never claim certainty
 
 STANCES = {"supports", "contradicts", "partial", "neutral"}
-MIXED_VERDICTS = {"PARTIALLY TRUE", "MISLEADING"}
 
 # ---- NLI second opinion (see scoring/nli.py) --------------------------------
 # Groq stance -> 3-way NLI label. "partial" is inherently in-between, so it maps

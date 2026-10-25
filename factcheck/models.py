@@ -10,7 +10,7 @@ from factcheck import config
 Category = Literal["Science", "Health", "Technology", "History", "General"]
 ALLOWED_CATEGORIES = list(get_args(Category))
 
-VerdictLabel = Literal["TRUE", "FALSE", "PARTIALLY TRUE", "MISLEADING", "UNVERIFIABLE"]
+VerdictLabel = Literal["TRUE", "FALSE", "UNVERIFIABLE"]
 VERDICTS = list(get_args(VerdictLabel))
 
 

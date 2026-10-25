@@ -21,17 +21,14 @@ Only sources with relevance >= 1, directness >= 1 and stance != neutral are
 counted. "Aligned" sources are those whose stance matches the verdict:
     TRUE            -> stance "supports"
     FALSE           -> stance "contradicts"
-    PARTIALLY TRUE /
-    MISLEADING      -> every counted source (mixed evidence is the signal)
 
 Four components, each in [0, 1]:
     relevance   = mean(R_i) over aligned sources
     credibility = R-weighted mean(C_i) over aligned sources
     strength    = dominance * mean(S_i) over aligned sources
                   dominance = aligned mass / (aligned + opposing mass)
-                  (TRUE/FALSE: opposing = contradicting/partial for TRUE,
-                   supporting/partial for FALSE.  Mixed verdicts: share of
-                   mass that is partial or two-sided.)
+                  (opposing = contradicting/partial for TRUE,
+                   supporting/partial for FALSE)
     agreement   = min(1, independent aligned domains / AGREEMENT_SATURATION)
 
     raw        = 0.20*relevance + 0.25*credibility + 0.35*strength + 0.20*agreement
@@ -51,7 +48,6 @@ Edge cases:
     UNVERIFIABLE                      -> 0.0
     TRUE/FALSE with zero aligned mass -> flagged "no_aligned_evidence"; the
                                          caller downgrades to UNVERIFIABLE (0.0)
-    Mixed verdict, zero counted srcs  -> same as above
 Weights favour strength of evidence (what the sources actually say) over
 retrieval quality; they are heuristic design choices, tunable in one place.
 """
@@ -67,7 +63,6 @@ from factcheck.scoring.constants import (
     FORMULA_VERSION,
     MAX_CONFIDENCE,
     MIN_RATING,
-    MIXED_VERDICTS,
     NLI_MAX_BOOST,
     NLI_MAX_PENALTY,
     RATING_MAX,
@@ -143,23 +138,15 @@ def compute_confidence(
     breakdown["mass"] = {k: round(v, 4) for k, v in mass.items()}
 
     # --- choose aligned vs opposing evidence ----------------------------
-    mixed = verdict in MIXED_VERDICTS
-    if mixed:
-        aligned = counted
-        mixed_mass = mass["partial"] + 2 * min(mass["supports"], mass["contradicts"])
-        total = sum(mass.values())
-        dominance = mixed_mass / total if total > 0 else 0.0
-        opposing_mass = 0.0
-    else:
-        aligned_stance = "supports" if verdict == "TRUE" else "contradicts"
-        opposite_stance = "contradicts" if verdict == "TRUE" else "supports"
-        aligned = [c for c in counted if c["stance"] == aligned_stance]
-        aligned_mass = mass[aligned_stance]
-        opposing_mass = mass[opposite_stance] + mass["partial"]
-        denom = aligned_mass + opposing_mass
-        dominance = aligned_mass / denom if denom > 0 else 0.0
+    aligned_stance = "supports" if verdict == "TRUE" else "contradicts"
+    opposite_stance = "contradicts" if verdict == "TRUE" else "supports"
+    aligned = [c for c in counted if c["stance"] == aligned_stance]
+    aligned_mass = mass[aligned_stance]
+    opposing_mass = mass[opposite_stance] + mass["partial"]
+    denom = aligned_mass + opposing_mass
+    dominance = aligned_mass / denom if denom > 0 else 0.0
 
-    if not aligned or (not mixed and sum(c["w"] for c in aligned) <= 0):
+    if not aligned or sum(c["w"] for c in aligned) <= 0:
         breakdown["reason"] = "no_aligned_evidence"
         breakdown["no_aligned_evidence"] = True
         return 0.0, breakdown
@@ -191,7 +178,7 @@ def compute_confidence(
 
     # Conflict handling: a clear verdict with substantial opposing evidence
     # cannot be high-confidence, however credible the supporting sources are.
-    conflict_capped = (not mixed) and opposing_mass > 0 and dominance < CONFLICT_DOMINANCE_THRESHOLD
+    conflict_capped = opposing_mass > 0 and dominance < CONFLICT_DOMINANCE_THRESHOLD
     if conflict_capped:
         raw = min(raw, CONFLICT_CAP)
 

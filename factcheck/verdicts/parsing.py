@@ -48,17 +48,27 @@ def validate_and_verify(parsed_obj: dict, sources: list[Source], nli_results: di
     real_urls = {src.url for src in sources}
     raw_citations = parsed_obj.get("cited_sources", [])
 
-    verified_citations = [
-        citation
-        for citation in raw_citations
-        if isinstance(citation, dict) and citation.get("url") in real_urls
-    ]
+    # The LLM only returns URLs; title/publisher/snippet come from our own Source
+    # objects (fewer output tokens = faster, and no chance of a fabricated quote).
+    by_url = {src.url: src for src in sources}
+    verified_citations, seen_urls = [], set()
+    for citation in raw_citations:
+        url = citation.get("url") if isinstance(citation, dict) else None
+        if url in real_urls and url not in seen_urls:
+            seen_urls.add(url)
+            s = by_url[url]
+            verified_citations.append({"publisher": s.publisher, "url": s.url,
+                                       "title": s.title, "relevant_text": s.relevant_text})
+
+    label = str(parsed_obj.get("verdict", "UNVERIFIABLE")).strip().upper()
+    if label not in ("TRUE", "FALSE", "UNVERIFIABLE"):
+        label = "UNVERIFIABLE"
 
     try:
         # Any "confidence" the model may still emit is deliberately ignored;
         # the real value is computed below by scoring.compute_confidence.
         verdict = Verdict(
-            verdict=parsed_obj.get("verdict", "UNVERIFIABLE"),
+            verdict=label,
             confidence=0.0,
             summary=parsed_obj.get("summary", ""),
             explanation=parsed_obj.get("explanation", ""),

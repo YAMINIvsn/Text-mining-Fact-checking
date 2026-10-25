@@ -14,6 +14,8 @@ def fact_check_no_sources(search_meta: dict | None) -> Verdict:
     - Otherwise (search ran, found results, but none passed the relevance
       filter in evidence/search.py) return UNVERIFIABLE.
     """
+
+
     total_raw = (search_meta or {}).get("total_raw_results", 0)
     queries_succeeded = (search_meta or {}).get("queries_succeeded", 0)
 

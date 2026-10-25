@@ -2,7 +2,7 @@
 YouTube handling:
 - Validating YouTube URLs
 - Extracting the video ID
-- Fetching official captions via youtube-transcript-api (preferred, no download needed)
+- Fetching official captions via youtube-transcript-api
 """
 
 import re
@@ -16,6 +16,7 @@ from youtube_transcript_api import (
 
 from factcheck.transcript.segments import make_segment
 
+
 YOUTUBE_URL_PATTERNS = [
     r"(?:youtube\.com/watch\?v=)([a-zA-Z0-9_-]{11})",
     r"(?:youtu\.be/)([a-zA-Z0-9_-]{11})",
@@ -24,11 +25,12 @@ YOUTUBE_URL_PATTERNS = [
 
 
 def extract_video_id(url: str) -> str | None:
-    """Return the 11-character YouTube video ID, or None if the URL is not valid."""
+    """Return the 11-character YouTube video ID, or None if invalid."""
     for pattern in YOUTUBE_URL_PATTERNS:
         match = re.search(pattern, url)
         if match:
             return match.group(1)
+
     return None
 
 
@@ -38,15 +40,29 @@ def is_valid_youtube_url(url: str) -> bool:
 
 def get_official_transcript(video_id: str) -> list[dict] | None:
     """
-    Try to fetch YouTube's own captions.
-    Returns a list of {start, end, start_str, end_str, text} dicts, or None if unavailable.
-    This does NOT download the video — it only reads publicly served caption data.
+    Fetch YouTube captions using youtube-transcript-api 1.x.
+
+    Returns:
+        List of transcript segments, or None if captions are unavailable.
     """
+
     try:
-        raw = YouTubeTranscriptApi.get_transcript(video_id)
+        # youtube-transcript-api >= 1.2 uses the instance-based API
+        api = YouTubeTranscriptApi()
+
+        # Prefer English, but fall back to other available captions.
+        transcript = api.fetch(
+            video_id,
+            languages=["en"]
+        )
+
+        raw = transcript.to_raw_data()
+
     except (TranscriptsDisabled, NoTranscriptFound, VideoUnavailable):
         return None
-    except Exception:
+
+    except Exception as exc:
+        print(f"Caption retrieval failed: {exc}")
         return None
 
     return [
